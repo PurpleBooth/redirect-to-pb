@@ -1,0 +1,39 @@
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  labels:
+    facing: front
+    service: pbredirect
+    type: nginx
+  name: wpwf-nginx-v0
+spec:
+  replicas: 2
+  selector:
+    service: pbredirect
+    type: nginx
+    version: v0
+  template:
+    metadata:
+      labels:
+        service: pbredirect
+        type: nginx
+        version: v0
+    spec:
+      containers:
+        -
+          image: quay.io/purplebooth/nginx-redirect-to-pb
+          imagePullPolicy: Always
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+          name: pbredirect-nginx
+          ports:
+            -
+              containerPort: 80
+              name: http
+              protocol: TCP
+      restartPolicy: Always
